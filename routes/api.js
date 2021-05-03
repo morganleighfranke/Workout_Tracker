@@ -1,14 +1,9 @@
 const router = require("express").Router();
 const Workout = require("../models/workout.js");
 
-
-// router.get("/exercise", (req, res) => {
-
-// })
-
-router.post("/api/workouts", ({ body }, res) => {
-    console.log(body);
-  Workout.create(body)
+router.post("/api/workouts", (req, res) => {
+  
+  Workout.create(req.body)
     .then(dbWorkout => {
         
       res.json(dbWorkout);
@@ -18,22 +13,42 @@ router.post("/api/workouts", ({ body }, res) => {
     });
 });
 
-router.put("/api/workouts/:id", ({ body, params }, res) => {
-  console.log(body);
+router.put("/api/workouts/:id", (req, res) => {
+  //find by the id and update 
+  Workout.findByIdAndUpdate(
+  //push into the array $push
   // put in params.id syntax
-  // use workoutKeyMap to create for each loops to put data into cards
-})
+    req.params.id,
+    {$push: {
+      exercises: req.body
+    }}
+  ).then((workoutdb) => {
+    res.json(workoutdb)
+  }) 
+  .catch((err) => {
+    res.status(400).json(err);
+  });
+});
 
 
 router.get("/api/workouts", (req, res) => {
-  Workout.find({});
-  console.log(res);
-    // .then(dbWorkout => {
-    //   res.json(dbWorkout);
-    // })
-    // .catch(err => {
-    //   res.status(400).json(err);
-    // });
+  Workout.find({})
+    .then(dbWorkout => {
+      res.json(dbWorkout);
+    })
+    .catch(err => {
+      res.status(400).json(err);
+    });
+});
+
+router.get("/api/workouts/range", (req, res) => {
+  Workout.find({}).limit(7)
+  .then((workoutdb) => {
+    res.json(workoutdb);
+  })
+  .catch((err) => {
+    res.status(400).json(err);
+  });
 });
 
 module.exports = router;
